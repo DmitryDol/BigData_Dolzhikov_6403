@@ -19,12 +19,12 @@ conf = SparkConf().setAppName("Lab1_Script")
 
 sc = SparkContext(conf=conf)
 
-tripData = sc.textFile("trips.csv")
+tripData = sc.textFile("/content/drive/MyDrive/Colab_Notebooks/BigData/data/trips.csv")
 # запомним заголовок, чтобы затем его исключить из данных
 tripsHeader = tripData.first()
 trips = tripData.filter(lambda row: row != tripsHeader).map(lambda row: row.split(",", -1))
 
-stationData = sc.textFile("stations.csv")
+stationData = sc.textFile("/content/drive/MyDrive/Colab_Notebooks/BigData/data/stations.csv")
 stationsHeader = stationData.first()
 stations = stationData.filter(lambda row: row != stationsHeader).map(lambda row: row.split(",", -1))
 
@@ -64,19 +64,22 @@ def initTrip(trips):
         zip_code: str
         
     for trip in trips:
-        yield Trip(                             
-             trip_id = int(trip[0]),
-             duration = int(trip[1]),
-             start_date = datetime.strptime(trip[2], '%m/%d/%Y %H:%M'),
-             start_station_name = trip[3],
-             start_station_id = int(trip[4]),
-             end_date = datetime.strptime(trip[5], '%m/%d/%Y %H:%M'),
-             end_station_name = trip[6],
-             end_station_id = trip[7],
-             bike_id = int(trip[8]),
-             subscription_type = trip[9],
-             zip_code = trip[10]
-        )
+        try:
+            yield Trip(                             
+                 trip_id = int(trip[0]),
+                 duration = int(trip[1]),
+                 start_date = datetime.strptime(trip[2], '%m/%d/%Y %H:%M'),
+                 start_station_name = trip[3],
+                 start_station_id = int(trip[4]),
+                 end_date = datetime.strptime(trip[5], '%m/%d/%Y %H:%M'),
+                 end_station_name = trip[6],
+                 end_station_id = trip[7],
+                 bike_id = int(trip[8]),
+                 subscription_type = trip[9],
+                 zip_code = trip[10]
+            )
+        except Exception:
+            pass
         
 stationsInternal = stations.mapPartitions(initStation)
 tripsInternal = trips.mapPartitions(initTrip)
